@@ -5,6 +5,7 @@
 #include "InsertCsvRow.h"
 #include <iostream>
 #include <fstream>
+#include <sys/stat.h>
 
 InsertCsvRow::InsertCsvRow(std::string header, std::vector<std::string> rows, std::string savepath, std::string filename)
         : header(header), rows(rows), savepath(savepath), filename(filename) {}
@@ -23,24 +24,25 @@ void InsertCsvRow::insert(std::string header, std::vector<std::string> rows, std
         std::string ex = "savepath=" + savepath + ", filename=" + filename;
         throw std::invalid_argument(ex);
     }
-
     if (savepath.back() != '/') {
         savepath += '/';
     }
+    std::ofstream output;
 
-    std::ofstream output(savepath + filename, std::ios::app);
-
-    if (output.is_open()) {
-        if (!header.empty()) {
-            output << header << '\n';
+    try {
+        std::ifstream file(filename);
+        if (file.good()) {
+            output.open(filename, std::ios::app); // Append mode
+        } else {
+            output.open(filename); // Create a new file
+            if (!header.empty()) {
+                output << header << '\n';
+            }
         }
-
-        for (const auto& row : rows) {
+        for (const std::string& row : rows) {
             output << row << '\n';
         }
-
-        output.close();
-    } else {
-        std::cerr << "Error opening the file." << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 }
