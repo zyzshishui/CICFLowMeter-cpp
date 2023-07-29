@@ -948,10 +948,10 @@ std::string BasicFlow::dumpFlowBasedFeaturesEx() const {
     }
 
     if (count(flowIdle) > 0) {
-        dump << mean(flowIdle) << separator;                           //77
-        dump << sqrt(variance(flowIdle)) << separator;               //78
-        dump << max(flowIdle) << separator;                            //79
-        dump << min(flowIdle) << separator;                            //80
+        dump << mean(flowIdle) << separator;                           //81
+        dump << sqrt(variance(flowIdle)) << separator;               //82
+        dump << max(flowIdle) << separator;                            //83
+        dump << min(flowIdle) << separator;                            //84
     } else {
         dump << 0 << separator;
         dump << 0 << separator;

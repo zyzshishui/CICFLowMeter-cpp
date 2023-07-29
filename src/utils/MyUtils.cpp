@@ -21,7 +21,7 @@ long countLines(const std::string& fileName) {
         lineNumber++;
     }
 
-    return lineNumber;
+    return lineNumber-1;
 }
 
 std::string getProtocolTypeAsString(pcpp::ProtocolType protocolType) {
