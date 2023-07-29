@@ -21,7 +21,7 @@ private:
     int dstPort;
     int protocol;
     long timeStamp;
-    uint64_t payloadBytes;
+    uint64_t payloadBytes = 0;
     std::string flowId;
     bool flagFIN;
     bool flagPSH;
@@ -31,9 +31,9 @@ private:
     bool flagACK;
     bool flagCWR;
     bool flagRST;
-    int TCPWindow;
-    uint64_t headerBytes;
-    int payloadPacket;
+    uint16_t TCPWindow = 0;
+    uint64_t headerBytes = 0;
+    int payloadPacket = 0;
     bool isValid = false;
 
 public:
@@ -82,7 +82,7 @@ public:
 
     long getTimeStamp() const;
 
-    void setTimeStamp(long timeStamp);
+    void setTimeStamp(long long timeStamp);
 
     const std::string& getFlowId() const;
 
@@ -130,9 +130,9 @@ public:
 
     void setFlagRST(bool flagRST);
 
-    int getTCPWindow() const;
+    uint16_t getTCPWindow() const;
 
-    void setTCPWindow(int TCPWindow);
+    void setTCPWindow(uint16_t TCPWindow);
 
     void setValid();
 

@@ -113,20 +113,8 @@ int main() {
         }
     }
 
-    std::ifstream in(pcapPath, std::ios::binary);
-    if (!in.is_open()) {
-        std::cerr << "Error opening pcap file: " << pcapPath << std::endl;
-        return 1;
-    }
-    in.close();
-
-//    std::ofstream out(outPath);
-//    if (!out.is_open() || out.fail()) {
-//        std::cerr << "Error opening csv file: " << outPath << std::endl;
-//        return 1;
-//    }
-//    out.close();
     readPcapDir(pcapPath, outPath, flowTimeout, activityTimeout);
 
     return 0;
 }
+

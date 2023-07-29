@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Packet.h>
 #include <IPv4Layer.h>
+#include <SystemUtils.h>
 #include "PacketReader.h"
 #include "BasicPacketInfo.h"
 
@@ -50,17 +51,17 @@ BasicPacketInfo* PacketReader::getIpv4Info(const pcpp::Packet& packet) {
             BasicPacketInfo* packetInfo = new BasicPacketInfo(generator);
             packetInfo->setSrc(ipv4Layer->getSrcIPv4Address());
             packetInfo->setDst(ipv4Layer->getDstIPv4Address());
-            packetInfo->setTimeStamp(packet.getRawPacket()->getPacketTimeStamp().tv_nsec * 1000);
+            packetInfo->setTimeStamp(packet.getRawPacket()->getPacketTimeStamp().tv_sec*1000000+packet.getRawPacket()->getPacketTimeStamp().tv_nsec/1000);
 
             if (firstPacket == 0L)
-                firstPacket = packet.getRawPacket()->getPacketTimeStamp().tv_nsec * 1000000;
-            lastPacket = packet.getRawPacket()->getPacketTimeStamp().tv_nsec * 1000000;
+                firstPacket = packet.getRawPacket()->getPacketTimeStamp().tv_sec*1000+packet.getRawPacket()->getPacketTimeStamp().tv_nsec/1000000;
+            lastPacket = packet.getRawPacket()->getPacketTimeStamp().tv_sec*1000+packet.getRawPacket()->getPacketTimeStamp().tv_nsec/1000000;
 
             if (parsedPacket.isPacketOfType(pcpp::TCP)) {
                 auto* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
-                packetInfo->setTCPWindow(tcpLayer->getTcpHeader()->windowSize);
-                packetInfo->setSrcPort(tcpLayer->getTcpHeader()->portSrc);
-                packetInfo->setDstPort(tcpLayer->getTcpHeader()->portDst);
+                packetInfo->setTCPWindow(pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize));
+                packetInfo->setSrcPort(tcpLayer->getSrcPort());
+                packetInfo->setDstPort(tcpLayer->getDstPort());
                 packetInfo->setProtocol(6);
                 packetInfo->setFlagFIN(tcpLayer->getTcpHeader()->finFlag);
                 packetInfo->setFlagPSH(tcpLayer->getTcpHeader()->pshFlag);
@@ -74,8 +75,8 @@ BasicPacketInfo* PacketReader::getIpv4Info(const pcpp::Packet& packet) {
                 packetInfo->setHeaderBytes(tcpLayer->getHeaderLen());
             } else if (parsedPacket.isPacketOfType(pcpp::UDP)) {
                 auto* udpLayer = parsedPacket.getLayerOfType<pcpp::UdpLayer>();
-                packetInfo->setSrcPort(udpLayer->getUdpHeader()->portSrc);
-                packetInfo->setDstPort(udpLayer->getUdpHeader()->portDst);
+                packetInfo->setSrcPort(udpLayer->getSrcPort());
+                packetInfo->setDstPort(udpLayer->getDstPort());
                 packetInfo->setPayloadBytes(udpLayer->getLayerPayloadSize());
                 packetInfo->setHeaderBytes(udpLayer->getHeaderLen());
                 packetInfo->setProtocol(17);

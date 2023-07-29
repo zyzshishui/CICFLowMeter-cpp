@@ -169,7 +169,7 @@ void BasicFlow::addPacket(BasicPacketInfo packet) {
     this->flowLastSeen = packet.getTimeStamp();
 }
 
-double BasicFlow::getfPktsPerSecond() {
+double BasicFlow::getfPktsPerSecond() const {
     uint64_t duration = this->flowLastSeen - this->flowStartTime;
     if (duration > 0) {
         return (this->forward.size() / (static_cast<double>(duration) / 1000000.0));
@@ -178,7 +178,7 @@ double BasicFlow::getfPktsPerSecond() {
     }
 }
 
-double BasicFlow::getbPktsPerSecond() {
+double BasicFlow::getbPktsPerSecond() const {
     uint64_t duration = this->flowLastSeen - this->flowStartTime;
     if (duration > 0) {
         return (this->backward.size() / (static_cast<double>(duration) / 1000000.0));
@@ -187,28 +187,28 @@ double BasicFlow::getbPktsPerSecond() {
     }
 }
 
-double BasicFlow::getDownUpRatio() {
+double BasicFlow::getDownUpRatio() const {
     if (this->forward.size() > 0) {
         return (static_cast<double>(this->backward.size()) / this->forward.size());
     }
     return 0.0;
 }
 
-double BasicFlow::getAvgPacketSize() {
+double BasicFlow::getAvgPacketSize() const {
     if (this->packetCount() > 0) {
         return (sum(this->flowLengthStats) / this->packetCount());
     }
     return 0.0;
 }
 
-double BasicFlow::fAvgSegmentSize() {
+double BasicFlow::fAvgSegmentSize() const {
     if (this->forward.size() != 0) {
         return (sum(this->fwdPktStats) / static_cast<double>(this->forward.size()));
     }
     return 0.0;
 }
 
-double BasicFlow::bAvgSegmentSize() {
+double BasicFlow::bAvgSegmentSize() const {
     if (this->backward.size() != 0) {
         return (sum(this->bwdPktStats) / static_cast<double>(this->backward.size()));
     }
@@ -253,29 +253,31 @@ void BasicFlow::checkFlags(BasicPacketInfo packet) {
     }
 }
 
-uint64_t BasicFlow::getSflow_fbytes() {
+uint64_t BasicFlow::getSflow_fbytes() const {
     if (sfCount <= 0) return 0;
     return this->forwardBytes / sfCount;
 }
 
-uint64_t BasicFlow::getSflow_fpackets() {
+uint64_t BasicFlow::getSflow_fpackets() const {
     if (sfCount <= 0) return 0;
     return this->forward.size() / sfCount;
 }
 
-uint64_t BasicFlow::getSflow_bbytes() {
+uint64_t BasicFlow::getSflow_bbytes() const {
     if (sfCount <= 0) return 0;
     return this->backwardBytes / sfCount;
 }
 
-uint64_t BasicFlow::getSflow_bpackets() {
+uint64_t BasicFlow::getSflow_bpackets() const {
     if (sfCount <= 0) return 0;
     return this->backward.size() / sfCount;
 }
 
 void BasicFlow::detectUpdateSubflows(BasicPacketInfo packetInfo) {
-    sfLastPacketTS = packetInfo.getTimeStamp();
-    sfAcHelper = packetInfo.getTimeStamp();
+    if (sfLastPacketTS == -1) {
+        sfLastPacketTS = packetInfo.getTimeStamp();
+        sfAcHelper = packetInfo.getTimeStamp();
+    }
 
     if (((packetInfo.getTimeStamp() - sfLastPacketTS) / static_cast<double>(1000000)) > 1.0) {
         sfCount++;
@@ -372,45 +374,45 @@ void BasicFlow::updateBackwardBulk(BasicPacketInfo packet, long tsOflastBulkInOt
 }
 
 
-double BasicFlow::fbulkDurationInSecond() {
+double BasicFlow::fbulkDurationInSecond() const {
     return fbulkDuration / static_cast<double>(1000000000);
 }
 
-long BasicFlow::fAvgBytesPerBulk() {
+long BasicFlow::fAvgBytesPerBulk() const {
     if (fbulkStateCount != 0)
         return fbulkSizeTotal / fbulkStateCount;
     return 0;
 }
 
-long BasicFlow::fAvgPacketsPerBulk() {
+long BasicFlow::fAvgPacketsPerBulk() const {
     if (fbulkStateCount != 0)
         return fbulkPacketCount / fbulkStateCount;
     return 0;
 }
 
-long BasicFlow::fAvgBulkRate() {
+long BasicFlow::fAvgBulkRate() const {
     if (fbulkDuration != 0)
         return static_cast<long>(fbulkSizeTotal / fbulkDurationInSecond());
     return 0;
 }
 
-double BasicFlow::bbulkDurationInSecond() {
+double BasicFlow::bbulkDurationInSecond() const {
     return bbulkDuration / static_cast<double>(1000000);
 }
 
-long BasicFlow::bAvgBytesPerBulk() {
+long BasicFlow::bAvgBytesPerBulk() const {
     if (bbulkStateCount != 0)
         return bbulkSizeTotal / bbulkStateCount;
     return 0;
 }
 
-long BasicFlow::bAvgPacketsPerBulk() {
+long BasicFlow::bAvgPacketsPerBulk() const {
     if (bbulkStateCount != 0)
         return bbulkPacketCount / bbulkStateCount;
     return 0;
 }
 
-long BasicFlow::bAvgBulkRate() {
+long BasicFlow::bAvgBulkRate() const {
     if (bbulkDuration != 0)
         return static_cast<long>(bbulkSizeTotal / bbulkDurationInSecond());
     return 0;
@@ -801,29 +803,29 @@ std::string BasicFlow::getLabel() const {
 
 std::string BasicFlow::dumpFlowBasedFeaturesEx() const {
     std::stringstream dump;
-    dump << flowId << separator;                                              // 1
+    dump << flowId << separator;                             // 1
     dump << src << separator;                                // 2
-    dump << getSrcPort() << separator;                                        // 3
+    dump << getSrcPort() << separator;                       // 3
     dump << dst << separator;                                // 4
-    dump << getDstPort() << separator;                                        // 5
-    dump << getProtocol() << separator;                                       // 6
+    dump << getDstPort() << separator;                       // 5
+    dump << getProtocol() << separator;                      // 6
 
-    std::string starttime = DateFormatter::convertMilliseconds2String(flowStartTime, "%d/%m/%Y %H:%M:%S %p");  //TODO: wrong
+    std::string starttime = DateFormatter::convertMilliseconds2String(flowStartTime, "%d/%m/%Y %H:%M:%S");
     dump << starttime << separator;                                           // 7
 
     long flowDuration = flowLastSeen - flowStartTime;
     dump << flowDuration << separator;                                        // 8
 
-    dump << count(fwdPktStats) << separator;                                   // 9
-    dump << count(bwdPktStats) << separator;                                   // 10
-    dump << sum(fwdPktStats) << separator;                                 // 11
-    dump << sum(bwdPktStats) << separator;                                 // 12
+    dump << count(fwdPktStats) << separator;            // 9
+    dump << count(bwdPktStats) << separator;            // 10
+    dump << sum(fwdPktStats) << separator;              // 11
+    dump << sum(bwdPktStats) << separator;              // 12
 
     if (count(fwdPktStats) > 0) {
-        dump << max(fwdPktStats) << separator;                                // 13
-        dump << min(fwdPktStats) << separator;                                // 14
-        dump << mean(fwdPktStats) << separator;                               // 15
-        dump << sqrt(variance(fwdPktStats)) << separator;                      // 16
+        dump << max(fwdPktStats) << separator;           // 13
+        dump << min(fwdPktStats) << separator;           // 14
+        dump << mean(fwdPktStats) << separator;          // 15
+        dump << sqrt(variance(fwdPktStats)) << separator; // 16
     } else {
         dump << 0 << separator;
         dump << 0 << separator;
@@ -832,10 +834,10 @@ std::string BasicFlow::dumpFlowBasedFeaturesEx() const {
     }
 
     if (count(bwdPktStats) > 0) {
-        dump << max(bwdPktStats) << separator;                                // 17
-        dump << min(bwdPktStats) << separator;                                // 18
-        dump << mean(bwdPktStats) << separator;                               // 19
-        dump << sqrt(variance(bwdPktStats)) << separator;                      // 20
+        dump << max(bwdPktStats) << separator;            // 17
+        dump << min(bwdPktStats) << separator;            // 18
+        dump << mean(bwdPktStats) << separator;           // 19
+        dump << sqrt(variance(bwdPktStats)) << separator;  // 20
     } else {
         dump << 0 << separator;
         dump << 0 << separator;
@@ -846,14 +848,14 @@ std::string BasicFlow::dumpFlowBasedFeaturesEx() const {
     dump << ((double)(forwardBytes + backwardBytes)) / ((double)flowDuration / 1000000L) << separator;  // 21
     dump << ((double)packetCount()) / ((double)flowDuration / 1000000L) << separator;  // 22
     dump << mean(flowIAT) << separator;                                    // 23
-    dump << sqrt(variance(flowIAT)) << separator;                           // 24
+    dump << sqrt(variance(flowIAT)) << separator;                        // 24
     dump << max(flowIAT) << separator;                                     // 25
     dump << min(flowIAT) << separator;                                     // 26
 
     if (forward.size() > 1) {
         dump << sum(forwardIAT) << separator;                               // 27
         dump << mean(forwardIAT) << separator;                              // 28
-        dump << sqrt(variance(forwardIAT)) << separator;                     // 29
+        dump << sqrt(variance(forwardIAT)) << separator;                  // 29
         dump << max(forwardIAT) << separator;                               // 30
         dump << min(forwardIAT) << separator;                               // 31
     } else {
@@ -867,7 +869,7 @@ std::string BasicFlow::dumpFlowBasedFeaturesEx() const {
     if (backward.size() > 1) {
         dump << sum(backwardIAT) << separator;                              // 32
         dump << mean(backwardIAT) << separator;                             // 33
-        dump << sqrt(variance(backwardIAT)) << separator;                    // 34
+        dump << sqrt(variance(backwardIAT)) << separator;                 // 34
         dump << max(backwardIAT) << separator;                              // 35
         dump << min(backwardIAT) << separator;                              // 36
     } else {
@@ -885,14 +887,78 @@ std::string BasicFlow::dumpFlowBasedFeaturesEx() const {
 
     dump << fHeaderBytes << separator;                                         // 41
     dump << bHeaderBytes << separator;                                         // 42
-    dump << ((forward.size() > 0 || backward.size() > 0) ? min(flowLengthStats) : 0) << separator;  // 43
-    dump << ((forward.size() > 0 || backward.size() > 0) ? max(flowLengthStats) : 0) << separator;  // 44
-    dump << ((forward.size() > 0 || backward.size() > 0) ? mean(flowLengthStats) : 0) << separator;  // 45
-    dump << ((forward.size() > 0 || backward.size() > 0) ? sqrt(variance(flowLengthStats)) : 0) << separator;  // 46
-    dump << ((forward.size() > 0 || backward.size() > 0) ? variance(flowLengthStats) : 0) << separator;  // 47
+    dump << getfPktsPerSecond() << separator;                                  // 43
+    dump << getbPktsPerSecond() << separator;                                  // 44
 
+    if (forward.size() > 0 || backward.size() > 0) {
+        dump << min(flowLengthStats) << separator;                        //45
+        dump << max(flowLengthStats) << separator;                        //46
+        dump << mean(flowLengthStats) << separator;                       //47
+        dump << sqrt(variance(flowLengthStats)) << separator;           //48
+        dump << variance(flowLengthStats) << separator;                   //49
+    } else {
+        dump << 0 << separator;
+        dump << 0 << separator;
+        dump << 0 << separator;
+        dump << 0 << separator;
+        dump << 0 << separator;
+    }
 
-    // ... continue dumping other features
+    dump << flagCounts.find("FIN")->second << separator;                    //50
+    dump << flagCounts.find("SYN")->second << separator;                    //51
+    dump << flagCounts.find("RST")->second << separator;                    //52
+    dump << flagCounts.find("PSH")->second << separator;                    //53
+    dump << flagCounts.find("ACK")->second << separator;                    //54
+    dump << flagCounts.find("URG")->second << separator;                    //55
+    dump << flagCounts.find("CWR")->second << separator;                    //56
+    dump << flagCounts.find("ECE")->second << separator;                    //57
+
+    dump << getDownUpRatio() << separator;                                     //58
+    dump << getAvgPacketSize() << separator;                                   //59
+    dump << fAvgSegmentSize() << separator;                                    //60
+    dump << bAvgSegmentSize() << separator;                                    //61
+
+    dump << fAvgBytesPerBulk() << separator;                                  //63
+    dump << fAvgPacketsPerBulk() << separator;                                //64
+    dump << fAvgBulkRate() << separator;                                      //65
+    dump << bAvgBytesPerBulk() << separator;                                  //66
+    dump << bAvgPacketsPerBulk() << separator;                                //67
+    dump << bAvgBulkRate() << separator;                                      //68
+
+    dump << getSflow_fpackets() << separator;                                 //69
+    dump << getSflow_fbytes() << separator;                                   //70
+    dump << getSflow_bpackets() << separator;                                 //71
+    dump << getSflow_bbytes() << separator;                                   //72
+
+    dump << Init_Win_bytes_forward << separator;                              //73
+    dump << Init_Win_bytes_backward << separator;                             //74
+    dump << Act_data_pkt_forward << separator;                                //75
+    dump << min_seg_size_forward << separator;                                //76
+
+    if (count(flowActive) > 0) {
+        dump << mean(flowActive) << separator;                           //77
+        dump << sqrt(variance(flowActive)) << separator;               //78
+        dump << max(flowActive) << separator;                            //79
+        dump << min(flowActive) << separator;                            //80
+    } else {
+        dump << 0 << separator;
+        dump << 0 << separator;
+        dump << 0 << separator;
+        dump << 0 << separator;
+    }
+
+    if (count(flowIdle) > 0) {
+        dump << mean(flowIdle) << separator;                           //77
+        dump << sqrt(variance(flowIdle)) << separator;               //78
+        dump << max(flowIdle) << separator;                            //79
+        dump << min(flowIdle) << separator;                            //80
+    } else {
+        dump << 0 << separator;
+        dump << 0 << separator;
+        dump << 0 << separator;
+        dump << 0 << separator;
+    }
+    dump << getLabel() << separator;
 
     return dump.str();
 }

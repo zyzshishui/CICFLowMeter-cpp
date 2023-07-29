@@ -20,9 +20,9 @@ private:
     std::unordered_map<std::string, std::vector<BasicPacketInfo>> IPAddresses;
 
     bool bidirectional;
-    long flowTimeOut;
-    long flowActivityTimeOut;
-    int finishedFlowCount;
+    long flowTimeOut = 0;
+    long flowActivityTimeOut = 0;
+    int finishedFlowCount = 0;
 
 public:
     FlowGenerator(bool bidirectional, long flowTimeout, long activityTimeout);

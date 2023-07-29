@@ -139,7 +139,7 @@ long BasicPacketInfo::getTimeStamp() const
     return timeStamp;
 }
 
-void BasicPacketInfo::setTimeStamp(long timeStamp)
+void BasicPacketInfo::setTimeStamp(long long timeStamp)
 {
     this->timeStamp = timeStamp;
 }
@@ -259,12 +259,12 @@ void BasicPacketInfo::setFlagRST(bool flagRST)
     this->flagRST = flagRST;
 }
 
-int BasicPacketInfo::getTCPWindow() const
+uint16_t BasicPacketInfo::getTCPWindow() const
 {
     return TCPWindow;
 }
 
-void BasicPacketInfo::setTCPWindow(int TCPWindow)
+void BasicPacketInfo::setTCPWindow(uint16_t TCPWindow)
 {
     this->TCPWindow = TCPWindow;
 }

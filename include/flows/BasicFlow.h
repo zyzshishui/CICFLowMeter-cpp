@@ -19,16 +19,6 @@
 using namespace boost::accumulators;
 using acc_set = accumulator_set<double, features<tag::count, tag::sum, tag::mean, tag::variance, tag::min, tag::max>>;
 
-//class MutableInt {
-//public:
-//    int value;
-//    MutableInt() : value(0) {}
-//
-//    void increment() {
-//        value++;
-//    }
-//};
-
 class BasicFlow {
 private:
     static const std::string separator;
@@ -37,35 +27,35 @@ private:
     std::vector<BasicPacketInfo> forward;
     std::vector<BasicPacketInfo> backward;
 
-    uint64_t forwardBytes;
-    uint64_t backwardBytes;
-    uint64_t fHeaderBytes;
-    uint64_t bHeaderBytes;
+    uint64_t forwardBytes = 0;
+    uint64_t backwardBytes = 0;
+    uint64_t fHeaderBytes = 0;
+    uint64_t bHeaderBytes = 0;
 
     bool isBidirectional;
 
     std::unordered_map<std::string, int> flagCounts;    //TODO: 原版是MutableInt
 
-    int fPSH_cnt;
-    int bPSH_cnt;
-    int fURG_cnt;
-    int bURG_cnt;
-    int fFIN_cnt;
-    int bFIN_cnt;
+    int fPSH_cnt = 0;
+    int bPSH_cnt = 0;
+    int fURG_cnt = 0;
+    int bURG_cnt = 0;
+    int fFIN_cnt = 0;
+    int bFIN_cnt = 0;
 
-    uint64_t Act_data_pkt_forward;
-    uint64_t min_seg_size_forward;
-    int Init_Win_bytes_forward;
-    int Init_Win_bytes_backward;
+    uint64_t Act_data_pkt_forward = 0;
+    uint64_t min_seg_size_forward = 0;
+    int Init_Win_bytes_forward = 0;
+    int Init_Win_bytes_backward = 0;
 
     pcpp::IPv4Address src;
     pcpp::IPv4Address dst;
     int srcPort;
     int dstPort;
     int protocol;
-    long flowStartTime;
-    long startActiveTime;
-    long endActiveTime;
+    long flowStartTime = 0;
+    long startActiveTime = 0;
+    long endActiveTime = 0;
     std::string flowId;
 
     acc_set flowIAT;
@@ -75,31 +65,30 @@ private:
     acc_set flowActive;
     acc_set flowIdle;
 
-    long flowLastSeen;
-    long forwardLastSeen;
-    long backwardLastSeen;
-    uint64_t activityTimeout;
-
-    long sfLastPacketTS;
-    int sfCount;
-    long sfAcHelper;
-
-    long flastBulkTS;
-    long blastBulkTS;
-    long fbulkStartHelper;
-    long bbulkStartHelper;
-    long fbulkPacketCountHelper = 0;
-    long bbulkPacketCountHelper = 0;
-    long fbulkSizeHelper = 0;
-    long bbulkSizeHelper = 0;
-    long fbulkStateCount = 0;
-    long bbulkStateCount = 0;
-    long fbulkPacketCount = 0;
-    long bbulkPacketCount = 0;
-    long fbulkSizeTotal = 0;
-    long bbulkSizeTotal = 0;
+    long flowLastSeen = 0;
+    long forwardLastSeen = 0;
+    long backwardLastSeen = 0;
+    uint64_t activityTimeout = 0;
+    long sfLastPacketTS = -1;
+    int sfCount = 0;
+    long sfAcHelper = 0;
     long fbulkDuration = 0;
+    long fbulkPacketCount = 0;
+    long fbulkSizeTotal = 0;
+    long fbulkStateCount = 0;
+    long fbulkPacketCountHelper = 0;
+    long fbulkStartHelper = 0;
+    long fbulkSizeHelper = 0;
+    long flastBulkTS = 0;
     long bbulkDuration = 0;
+    long bbulkPacketCount = 0;
+    long bbulkSizeTotal = 0;
+    long bbulkStateCount = 0;
+    long bbulkPacketCountHelper = 0;
+    long bbulkStartHelper;
+    long bbulkSizeHelper = 0;
+    long blastBulkTS = 0;
+
 
 
 public:
@@ -112,30 +101,30 @@ public:
     void initParameters();
     void firstPacket(BasicPacketInfo packetInfo);
     void addPacket(BasicPacketInfo packet);
-    double getfPktsPerSecond();
-    double getbPktsPerSecond();
-    double getDownUpRatio();
-    double getAvgPacketSize();
-    double fAvgSegmentSize();
-    double bAvgSegmentSize();
+    double getfPktsPerSecond() const;
+    double getbPktsPerSecond() const;
+    double getDownUpRatio() const;
+    double getAvgPacketSize() const;
+    double fAvgSegmentSize() const;
+    double bAvgSegmentSize() const;
     void initFlags();
     void checkFlags(BasicPacketInfo packet);
-    uint64_t getSflow_fbytes();
-    uint64_t getSflow_fpackets();
-    uint64_t getSflow_bbytes();
-    uint64_t getSflow_bpackets();
+    uint64_t getSflow_fbytes() const;
+    uint64_t getSflow_fpackets() const;
+    uint64_t getSflow_bbytes() const;
+    uint64_t getSflow_bpackets() const;
     void detectUpdateSubflows(BasicPacketInfo packetInfo);
     void updateFlowBulk(BasicPacketInfo packet);
     void updateForwardBulk(BasicPacketInfo packet, long tsOflastBulkInOther);
     void updateBackwardBulk(BasicPacketInfo packet, long tsOflastBulkInOther);
-    double fbulkDurationInSecond();
-    long fAvgBytesPerBulk();
-    long fAvgPacketsPerBulk();
-    long fAvgBulkRate();
-    double bbulkDurationInSecond();
-    long bAvgBytesPerBulk();
-    long bAvgPacketsPerBulk();
-    long bAvgBulkRate();
+    double fbulkDurationInSecond() const;
+    long fAvgBytesPerBulk() const;
+    long fAvgPacketsPerBulk() const;
+    long fAvgBulkRate() const;
+    double bbulkDurationInSecond() const;
+    long bAvgBytesPerBulk() const;
+    long bAvgPacketsPerBulk() const;
+    long bAvgBulkRate() const;
     void updateActiveIdleTime(long currentTime, long threshold);
     void endActiveIdleTime(long currentTime, long threshold, long flowTimeOut, bool isFlagEnd);
     std::string dumpFlowBasedFeatures();

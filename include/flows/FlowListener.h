@@ -12,7 +12,7 @@ class FlowListener {
 private:
     std::string fileName;
     std::string outPath;
-    long cnt;
+    long cnt = 0;
 
 public:
     FlowListener(const std::string& fileName, const std::string& outPath) : fileName(fileName), outPath(outPath), cnt(0) {}

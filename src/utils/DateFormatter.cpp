@@ -21,10 +21,10 @@ std::string DateFormatter::parseDateFromLong(long long time, const std::string& 
 
 std::string DateFormatter::convertMilliseconds2String(long long time, const char *format) {
     if (format == nullptr) {
-        format = "%d/%m/%Y %H:%M:%S %p";
+        format = "%d/%m/%Y %H:%M:%S";
     }
 
-    std::time_t timestamp = static_cast<std::time_t>(time / 1000);
+    std::time_t timestamp = static_cast<std::time_t>(time / 1000000);
     std::tm* timeinfo = std::localtime(&timestamp);
     char buffer[20];
     std::strftime(buffer, sizeof(buffer), format, timeinfo);

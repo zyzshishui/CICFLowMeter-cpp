@@ -154,7 +154,7 @@ int FlowGenerator::dumpLabeledFlowBasedFeatures(const std::string& path, const s
 
         for (const auto& pair : finishedFlows) {
             const BasicFlow& flow = pair.second;
-            if (flow.packetCount() > 1) {
+            if (flow.packetCount() >= 1) {
                 output << flow.dumpFlowBasedFeaturesEx() << "\n";
                 total++;
             } else {
@@ -164,7 +164,7 @@ int FlowGenerator::dumpLabeledFlowBasedFeatures(const std::string& path, const s
 
         for (const auto& pair : currentFlows) {
             const BasicFlow& flow = pair.second;
-            if (flow.packetCount() > 1) {
+            if (flow.packetCount() >= 1) {
                 output << flow.dumpFlowBasedFeaturesEx() << "\n";
                 total++;
             } else {
